@@ -1,15 +1,21 @@
 import asyncio
 from playwright.async_api import async_playwright, TimeoutError
 
-# Yahan apna answer set karein ("A", "B", "C", ya "D")
-ANSWER = "A"
+ANSWER = "C"
 
-# Yahan apne accounts ki list daal dein
 accounts = [
-    {"username": "apna_username_1", "wallet": "0xYourWalletAddressHere1"},
-    # Agar aur accounts hon toh aese add kar lein:
-    # {"username": "apna_username_2", "wallet": "0xYourWalletAddressHere2"},
+    {"username": "sunny-1", "wallet": "3HBrdGigUxi3FokCeV6VsY46E744GMgVJPZhg13NyfYf"},
+    {"username": "sunny-2", "wallet": "GEVGkbE4v5vzNXoc1Fid2mBm6oCKq3mxQbE3w9HbfAEK"},
+    {"username": "sunny-3", "wallet": "GpNNbBBLgoPaNNj6V5cWBFUhX43jjdE53VJijvPhFhsu"},
+    {"username": "sunny-4", "wallet": "5cdLqMUwy5okG4aTBwsY6F2uFzSnjfRs3iY8GCrbJ9AT"},
+    {"username": "sunny-5", "wallet": "DRZDT6rW5bZXvJFKrp31bkkS8RxMfx8ktXD381AnyeUq"},
+    {"username": "sunny-6", "wallet": "CfjMTYs6A2MbDiokKBc5CWq8jbcy8iea7tsfw9D6N8Do"},
+    {"username": "sunny-7", "wallet": "DB8r45ai2EgnuxKf13JqbpxrLPxxBF2eJACopC6Er1aH"},
+    {"username": "sunny-8", "wallet": "8RwBhp2Q86SeSWqt8Y2vspR5LfqWmQCdu2wpUTM3cSXS"},
+    {"username": "sunny-9", "wallet": "4q58evjqN3G6ura5t5rqptLPdDVjCFENFTpeGyR5uPnH"},
+    {"username": "sunny-10", "wallet": "B1KVMqniFQ9dJJKxq9wvMXWW91zz8R5Q18TANJfbBVRq"},
 ]
+
 
 async def handle_modal(page):
     modal = page.locator("#scamMigrationWarningModal")
@@ -20,14 +26,15 @@ async def handle_modal(page):
             if await buttons.count() > 0:
                 await buttons.first.click()
                 await page.wait_for_timeout(1000)
-    except:
+    except Exception:
         pass
+
 
 async def run_bot():
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=True,
-            args=["--no-sandbox", "--disable-dev-shm-usage"]
+            args=["--no-sandbox", "--disable-dev-shm-usage"],
         )
 
         for acc in accounts:
@@ -39,8 +46,8 @@ async def run_bot():
             try:
                 await page.goto("https://theros.io/prelaunch", timeout=80000)
                 await page.wait_for_load_state("networkidle", timeout=15000)
-            except TimeoutError:
-                print(f"Timeout for {acc['username']}. Skipping.")
+            except Exception as e:
+                print(f"Connection error for {acc['username']}: {e}. Skipping account.")
                 await context.close()
                 continue
 
@@ -72,7 +79,7 @@ async def run_bot():
             try:
                 await next_btn.wait_for(state="visible", timeout=8000)
                 await next_btn.click()
-            except:
+            except Exception:
                 pass
 
             answer_selector = f"#answer{ANSWER.upper()}"
@@ -82,10 +89,12 @@ async def run_bot():
             except Exception as e:
                 print(f"Failed to answer: {e}")
 
+            await page.wait_for_timeout(1000)
             await context.close()
 
         await browser.close()
         print("🎉 All accounts processed successfully!")
+
 
 if __name__ == "__main__":
     asyncio.run(run_bot())
